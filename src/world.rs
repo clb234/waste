@@ -57,7 +57,10 @@ pub(crate) fn logical_to_rendering(x: isize, y: isize) -> (f32, f32) {
     (x as f32 * WIN_W, y as f32 * WIN_H)
 }
 
-#[derive(Clone)]
+pub(crate) fn rendering_to_logical(x: f32, y: f32) -> (isize, isize) {
+    ((x / WIN_W).trunc() as isize, (y / WIN_H).trunc() as isize)
+}
+
 pub(crate) struct GameProgress {
     /// the level of our player, which is also the level we should spawn the monsters
     pub(crate) current_level: usize,
@@ -169,7 +172,7 @@ impl GameProgress {
     /// Give the player the reward for the first matching quest found
     ///
     /// @param typing: Element of the monster that was defeated
-    pub(crate) fn get_quest_rewards(&mut self, typing: Element) {
+    pub(crate) fn get_quest_rewards(&mut self, typing: Element) -> Option<(usize, usize)> {
         let num_quests = self.quests_active.len();
         for i in 0..num_quests {
             if self.quests_active[i].target == typing {
@@ -183,9 +186,11 @@ impl GameProgress {
                     reward_amount,
                     item_index_to_name(reward)
                 );
-                return;
+                return Some((reward, reward_amount));
             }
         }
+
+        None
     }
 }
 
